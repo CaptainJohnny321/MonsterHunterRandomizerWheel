@@ -8,7 +8,9 @@ type WheelItem = {
   file: string
 }
 
-type WeightedItem = WheelItem & { weight: number }
+type MonsterVariant = 'normal' | 'tempered' | 'archTempered'
+type WeightedItem = WheelItem & { weight: number; normal: boolean; tempered: boolean; archTempered: boolean }
+type WheelOption = WheelItem & { variant: 'normal' | MonsterVariant; sourceId: string; weight: number }
 
 type WheelProps = {
   title: string
@@ -21,13 +23,27 @@ type WheelProps = {
   accent: 'ember' | 'teal'
   onToggle: () => void
   onWeightChange: (id: string, weight: number) => void
+  onVariantToggle: (id: string, variant: MonsterVariant, enabled: boolean) => void
+  onToggleAllVariant: (variant: MonsterVariant) => void
   onSpin: () => void
 }
 
 const assetRoot = './assets'
 const stateChannel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('monster-wheel-state')
+const archTemperedMonsterIds = new Set(['arkveld', 'uth-duna', 'rey-dau', 'nu-udra', 'jin-dahaad'])
 
-function weightedPick(items: WeightedItem[]) {
+function getWheelOptions(items: WeightedItem[], showMonsterVariants: boolean) {
+  return items.flatMap<WheelOption>((item) => {
+    if (item.weight <= 0) return []
+    const options: WheelOption[] = []
+    if (item.normal) options.push({ ...item, variant: 'normal', sourceId: item.id })
+    if (showMonsterVariants && item.tempered) options.push({ ...item, id: `${item.id}-tempered`, name: `${item.name} (Tempered)`, variant: 'tempered', sourceId: item.id })
+    if (showMonsterVariants && item.archTempered) options.push({ ...item, id: `${item.id}-arch-tempered`, name: `${item.name} (Arch Tempered)`, variant: 'archTempered', sourceId: item.id })
+    return options
+  })
+}
+
+function weightedPick(items: WheelOption[]) {
   const activeItems = items.filter((item) => item.weight > 0)
   const totalWeight = activeItems.reduce((total, item) => total + item.weight, 0)
   let cursor = Math.random() * totalWeight
@@ -51,9 +67,12 @@ function Wheel({
   accent,
   onToggle,
   onWeightChange,
+  onVariantToggle,
+  onToggleAllVariant,
   onSpin,
 }: WheelProps) {
-  const activeItems = items.filter((item) => item.weight > 0)
+  const showMonsterVariants = folder === 'monsters'
+  const activeItems = getWheelOptions(items, showMonsterVariants)
   const totalWeight = activeItems.reduce((total, item) => total + item.weight, 0)
   const sliceColors = ['#c95b32', '#f2c879', '#2d7772', '#e7a46d']
   const gradient = activeItems.length
@@ -87,6 +106,11 @@ function Wheel({
           <span /> {enabled ? 'Active' : 'Off'}
         </button>
       </div>
+      {showMonsterVariants && <div className="variant-toolbar">
+        <span>Monster versions</span>
+        <button type="button" onClick={() => onToggleAllVariant('tempered')}>Tempered all</button>
+        <button type="button" onClick={() => onToggleAllVariant('archTempered')}>Arch Tempered all</button>
+      </div>}
 
       <div className="wheel-stage">
         <div className={`pointer ${accent}`} />
@@ -114,11 +138,14 @@ function Wheel({
       <div className="item-list">
         {items.map((item) => {
           const chance = totalWeight ? Math.round((item.weight / totalWeight) * 100) : 0
+          const hasArchTempered = archTemperedMonsterIds.has(item.id)
           return (
-            <label className={`item-row ${item.weight === 0 ? 'is-muted' : ''}`} key={item.id}>
+            <label className={`item-row ${showMonsterVariants ? 'has-variants' : ''} ${item.weight === 0 ? 'is-muted' : ''}`} key={item.id}>
               <img src={`${assetRoot}/${folder}/${item.file}`} alt="" />
               <span className="item-name">{item.name}</span>
-              <input aria-label={`Include ${item.name}`} type="checkbox" checked={item.weight > 0} onChange={(event) => onWeightChange(item.id, event.target.checked ? 50 : 0)} />
+              <input aria-label={`Include ${item.name}`} title="Normal" type="checkbox" checked={item.normal} onChange={(event) => onVariantToggle(item.id, 'normal', event.target.checked)} />
+              {showMonsterVariants && <input aria-label={`Include ${item.name} Tempered`} title="Tempered" type="checkbox" checked={item.tempered} onChange={(event) => onVariantToggle(item.id, 'tempered', event.target.checked)} />}
+              {showMonsterVariants && <input aria-label={`Include ${item.name} Arch Tempered`} title="Arch Tempered" type="checkbox" disabled={!hasArchTempered} checked={item.archTempered} onChange={(event) => onVariantToggle(item.id, 'archTempered', event.target.checked)} />}
               <input aria-label={`${item.name} chance percent`} className="weight-input" type="number" min="0" value={item.weight} onChange={(event) => onWeightChange(item.id, Math.max(0, Number(event.target.value) || 0))} />
               <output>{chance}%</output>
             </label>
@@ -145,8 +172,8 @@ function App() {
       fetch(`${assetRoot}/monsters/manifest.json`).then((response) => response.json()),
       fetch(`${assetRoot}/weapons/manifest.json`).then((response) => response.json()),
     ]).then(([monsterManifest, weaponManifest]) => {
-      setMonsters(monsterManifest.map((item: WheelItem) => ({ ...item, weight: 50 })))
-      setWeapons(weaponManifest.map((item: WheelItem) => ({ ...item, weight: 50 })))
+      setMonsters(monsterManifest.map((item: WheelItem) => ({ ...item, weight: 50, normal: true, tempered: false, archTempered: false })))
+      setWeapons(weaponManifest.map((item: WheelItem) => ({ ...item, weight: 50, normal: true, tempered: false, archTempered: false })))
     })
   }, [])
 
@@ -162,12 +189,25 @@ function App() {
     setter((current) => current.map((item) => (item.id === id ? { ...item, weight } : item)))
   }
 
+  const updateVariant = (type: 'monster' | 'weapon', id: string, variant: MonsterVariant, enabled: boolean) => {
+    const setter = type === 'monster' ? setMonsters : setWeapons
+    setter((current) => current.map((item) => item.id === id ? { ...item, [variant]: enabled, weight: variant === 'normal' && enabled && item.weight === 0 ? 50 : item.weight } : item))
+  }
+
+  const toggleAllMonsterVariants = (variant: MonsterVariant) => {
+    setMonsters((current) => {
+      const eligibleItems = variant === 'archTempered' ? current.filter((item) => archTemperedMonsterIds.has(item.id)) : current
+      const enable = eligibleItems.some((item) => !item[variant])
+      return current.map((item) => variant === 'archTempered' && !archTemperedMonsterIds.has(item.id) ? item : { ...item, [variant]: enable })
+    })
+  }
+
   const spin = (wheel: 'monster' | 'weapon' | 'both') => {
     if (spinningWheel || !loaded || activeWheelCount === 0) return
     setSpinningWheel(wheel)
     window.setTimeout(() => {
-      const nextMonster = (wheel === 'weapon' || !monstersEnabled) ? monsterResult : weightedPick(monsters)
-      const nextWeapon = (wheel === 'monster' || !weaponsEnabled) ? weaponResult : weightedPick(weapons)
+      const nextMonster = (wheel === 'weapon' || !monstersEnabled) ? monsterResult : weightedPick(getWheelOptions(monsters, true))
+      const nextWeapon = (wheel === 'monster' || !weaponsEnabled) ? weaponResult : weightedPick(getWheelOptions(weapons, false))
       if (wheel !== 'weapon') setMonsterResult(nextMonster)
       if (wheel !== 'monster') setWeaponResult(nextWeapon)
       const label = [nextMonster?.name, nextWeapon?.name].filter(Boolean).join(' + ')
@@ -235,8 +275,8 @@ function App() {
       </section>
 
       <section className="wheel-grid">
-        <Wheel title="Monster" eyebrow="Target wheel" folder="monsters" items={monsters} enabled={monstersEnabled} result={monsterResult} spinning={spinningWheel === 'monster' || spinningWheel === 'both'} accent="ember" onToggle={() => setMonstersEnabled((value) => !value)} onWeightChange={(id, weight) => updateWeight('monster', id, weight)} onSpin={() => spin('monster')} />
-        <Wheel title="Weapon" eyebrow="Loadout wheel" folder="weapons" items={weapons} enabled={weaponsEnabled} result={weaponResult} spinning={spinningWheel === 'weapon' || spinningWheel === 'both'} accent="teal" onToggle={() => setWeaponsEnabled((value) => !value)} onWeightChange={(id, weight) => updateWeight('weapon', id, weight)} onSpin={() => spin('weapon')} />
+        <Wheel title="Monster" eyebrow="Target wheel" folder="monsters" items={monsters} enabled={monstersEnabled} result={monsterResult} spinning={spinningWheel === 'monster' || spinningWheel === 'both'} accent="ember" onToggle={() => setMonstersEnabled((value) => !value)} onWeightChange={(id, weight) => updateWeight('monster', id, weight)} onVariantToggle={(id, variant, enabled) => updateVariant('monster', id, variant, enabled)} onToggleAllVariant={toggleAllMonsterVariants} onSpin={() => spin('monster')} />
+        <Wheel title="Weapon" eyebrow="Loadout wheel" folder="weapons" items={weapons} enabled={weaponsEnabled} result={weaponResult} spinning={spinningWheel === 'weapon' || spinningWheel === 'both'} accent="teal" onToggle={() => setWeaponsEnabled((value) => !value)} onWeightChange={(id, weight) => updateWeight('weapon', id, weight)} onVariantToggle={(id, variant, enabled) => updateVariant('weapon', id, variant, enabled)} onToggleAllVariant={() => undefined} onSpin={() => spin('weapon')} />
       </section>
 
       <section className="command-bar">

@@ -12,6 +12,10 @@ Download the latest version directly from the repository:
 
 The installer is recommended for most users. The portable version runs without installation.
 
+## Monster variant options
+
+Each monster has separate checkboxes for **Normal** and **Tempered**. **Arch Tempered** is available for Arkveld, Uth Duna, Rey Dau, Nu Udra, and Jin Dahaad. Use **Tempered all** or **Arch Tempered all** above the monster list to enable or disable an entire tier. Variant checkboxes share the monster's weight value, so enabled variants have equal weight for that monster.
+
 ## Streamer setup guide
 
 ### What streamers need
