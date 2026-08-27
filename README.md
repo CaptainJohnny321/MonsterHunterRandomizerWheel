@@ -42,11 +42,13 @@ This URL is the same for every streamer, but `127.0.0.1` always means **the curr
 
 The overlay shows only the monster and weapon wheels. The page background, headings, buttons, weight lists, and hunt log are hidden automatically.
 
-### Use the overlay toggle
+### Open the second overlay window
 
-The main application includes a clearly labeled **Streamer overlay** toggle. Turn it on when using a direct window capture and you want the native app itself to show only the wheels. While overlay mode is on, press **Space** to spin both wheels and press **Escape** to leave overlay mode.
+Click the clearly labeled **Streamer overlay** button in the main application. This opens a second window containing only the wheels, while the original window keeps the controls, weights, percentages, and enable/disable settings.
 
-For a Browser Source, use the URL with `?overlay=1`; the toggle in the native app does not control a separate Browser Source window.
+The two windows stay synchronized. Roll or change settings in the main window and the overlay updates. In the overlay window, press **Space** to request a roll from the main window. Press **Escape** to close overlay mode.
+
+For a Browser Source instead of a second app window, use the URL with `?overlay=1` shown above.
 
 ### Troubleshooting
 

@@ -25,6 +25,7 @@ type WheelProps = {
 }
 
 const assetRoot = './assets'
+const stateChannel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('monster-wheel-state')
 
 function weightedPick(items: WeightedItem[]) {
   const activeItems = items.filter((item) => item.weight > 0)
@@ -176,11 +177,36 @@ function App() {
   }
 
   useEffect(() => {
+    const handleStateMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'request-state' && !streamerOverlay) {
+        stateChannel?.postMessage({ type: 'state', state: { monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel } })
+      }
+      if (event.data?.type === 'spin-request' && !streamerOverlay) spin('both')
+      if (event.data?.type === 'state' && streamerOverlay) {
+        setMonsters(event.data.state.monsters)
+        setWeapons(event.data.state.weapons)
+        setMonstersEnabled(event.data.state.monstersEnabled)
+        setWeaponsEnabled(event.data.state.weaponsEnabled)
+        setMonsterResult(event.data.state.monsterResult)
+        setWeaponResult(event.data.state.weaponResult)
+        setSpinningWheel(event.data.state.spinningWheel)
+      }
+    }
+    stateChannel?.addEventListener('message', handleStateMessage)
+    if (streamerOverlay) stateChannel?.postMessage({ type: 'request-state' })
+    return () => stateChannel?.removeEventListener('message', handleStateMessage)
+  }, [streamerOverlay, monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel])
+
+  useEffect(() => {
+    if (!streamerOverlay) stateChannel?.postMessage({ type: 'state', state: { monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel } })
+  }, [streamerOverlay, monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel])
+
+  useEffect(() => {
     const handleOverlayKeys = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setStreamerOverlay(false)
       if (streamerOverlay && event.code === 'Space' && event.target instanceof HTMLElement && !['INPUT', 'BUTTON'].includes(event.target.tagName)) {
         event.preventDefault()
-        spin('both')
+        stateChannel?.postMessage({ type: 'spin-request' })
       }
     }
     window.addEventListener('keydown', handleOverlayKeys)
@@ -192,7 +218,7 @@ function App() {
       <header className="topbar">
         <div className="brand"><span className="brand-mark">MW</span><span>Monster Wheel</span></div>
         <div className="topbar-actions">
-          <button className={`overlay-toggle ${streamerOverlay ? 'is-on' : ''}`} type="button" onClick={() => setStreamerOverlay((value) => !value)} aria-pressed={streamerOverlay}>
+          <button className="overlay-toggle" type="button" onClick={() => window.open(`${window.location.origin}/?overlay=1`, 'monster-wheel-streamer-overlay', 'popup,width=900,height=520')}>
             <i /> Streamer overlay
           </button>
           <span className="status"><i /> Wilds hunt generator</span>
