@@ -1,0 +1,7 @@
+node_modules/
+dist/
+release/
+app-scaffold/
+app-react/
+.venv/
+*.log
