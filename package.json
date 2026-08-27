@@ -1,0 +1,53 @@
+{
+  "name": "monster-wheel",
+  "description": "A Monster Hunter Wilds hunt randomizer",
+  "author": "Monster Wheel",
+  "main": "electron/main.mjs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "app": "npm run build && electron .",
+    "dist": "npm run build && electron-builder",
+    "lint": "oxlint",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "electron": "^44.0.0",
+    "electron-builder": "^26.15.3",
+    "electron-serve": "^3.0.1",
+    "oxlint": "^1.79.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.2"
+  },
+  "build": {
+    "appId": "com.monsterwheel.app",
+    "productName": "Monster Wheel",
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

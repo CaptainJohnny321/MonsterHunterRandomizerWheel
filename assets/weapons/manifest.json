@@ -1,0 +1,16 @@
+[
+  {"id":"bow","name":"Bow","file":"png/bow.png"},
+  {"id":"charge-blade","name":"Charge Blade","file":"png/charge-blade.png"},
+  {"id":"dual-blades","name":"Dual Blades","file":"png/dual-blades.png"},
+  {"id":"great-sword","name":"Great Sword","file":"png/great-sword.png"},
+  {"id":"gunlance","name":"Gunlance","file":"png/gunlance.png"},
+  {"id":"hammer","name":"Hammer","file":"png/hammer.png"},
+  {"id":"heavy-bowgun","name":"Heavy Bowgun","file":"png/heavy-bowgun.png"},
+  {"id":"hunting-horn","name":"Hunting Horn","file":"png/hunting-horn.png"},
+  {"id":"insect-glaive","name":"Insect Glaive","file":"png/insect-glaive.png"},
+  {"id":"lance","name":"Lance","file":"png/lance.png"},
+  {"id":"light-bowgun","name":"Light Bowgun","file":"png/light-bowgun.png"},
+  {"id":"long-sword","name":"Long Sword","file":"png/long-sword.png"},
+  {"id":"switch-axe","name":"Switch Axe","file":"png/switch-axe.png"},
+  {"id":"sword-and-shield","name":"Sword and Shield","file":"png/sword-and-shield.png"}
+]
