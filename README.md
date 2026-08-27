@@ -44,7 +44,7 @@ The overlay shows only the monster and weapon wheels. The page background, headi
 
 ### Use the overlay toggle
 
-The main application includes a clearly labeled **Streamer overlay** toggle. Turn it on when using a direct window capture and you want the native app itself to show only the wheels. Press `Escape` to leave overlay mode.
+The main application includes a clearly labeled **Streamer overlay** toggle. Turn it on when using a direct window capture and you want the native app itself to show only the wheels. While overlay mode is on, press **Space** to spin both wheels and press **Escape** to leave overlay mode.
 
 For a Browser Source, use the URL with `?overlay=1`; the toggle in the native app does not control a separate Browser Source window.
 

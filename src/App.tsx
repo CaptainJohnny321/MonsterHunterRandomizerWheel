@@ -140,14 +140,6 @@ function App() {
   const [history, setHistory] = useState<string[]>([])
 
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setStreamerOverlay(false)
-    }
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [])
-
-  useEffect(() => {
     Promise.all([
       fetch(`${assetRoot}/monsters/manifest.json`).then((response) => response.json()),
       fetch(`${assetRoot}/weapons/manifest.json`).then((response) => response.json()),
@@ -182,6 +174,18 @@ function App() {
       setSpinningWheel(null)
     }, 2200)
   }
+
+  useEffect(() => {
+    const handleOverlayKeys = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setStreamerOverlay(false)
+      if (streamerOverlay && event.code === 'Space' && event.target instanceof HTMLElement && !['INPUT', 'BUTTON'].includes(event.target.tagName)) {
+        event.preventDefault()
+        spin('both')
+      }
+    }
+    window.addEventListener('keydown', handleOverlayKeys)
+    return () => window.removeEventListener('keydown', handleOverlayKeys)
+  }, [streamerOverlay, spinningWheel, loaded, activeWheelCount, monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult])
 
   return (
     <main className={`app-shell ${streamerOverlay ? 'overlay-mode' : ''}`}>
