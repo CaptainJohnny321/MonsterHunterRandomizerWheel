@@ -59,6 +59,21 @@ async function createWindow() {
     },
   })
 
+  window.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.includes('?overlay=1')) {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          alwaysOnTop: true,
+          minimizable: false,
+          autoHideMenuBar: true,
+          title: 'Monster Hunter Randomizer - Streamer Overlay',
+        },
+      }
+    }
+    return { action: 'deny' }
+  })
+
   await window.loadURL(`http://127.0.0.1:${serverPort}/`)
 }
 

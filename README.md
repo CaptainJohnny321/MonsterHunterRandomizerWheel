@@ -6,8 +6,8 @@ Monster Hunter Randomizer is a desktop hunt randomizer for Monster Hunter Wilds.
 
 Download the latest version directly from the repository:
 
-- [Download and install Monster Hunter Randomizer](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Hunter.Randomizer.Setup.0.1.2.exe)
-- [Download the portable version](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Hunter.Randomizer.0.1.2.exe)
+- [Download and install Monster Hunter Randomizer](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Hunter.Randomizer.Setup.0.1.4.exe)
+- [Download the portable version](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Hunter.Randomizer.0.1.4.exe)
 - [View all releases and files](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases)
 
 The installer is recommended for most users. The portable version runs without installation.

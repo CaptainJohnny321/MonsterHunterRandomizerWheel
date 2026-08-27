@@ -1,5 +1,5 @@
 :root { --paper: #f4f0e7; --surface: #ebe6da; --ink: #24251f; --muted: #79776c; --line: #d5cfc1; --ember: #c85d35; --teal: #2d7772; --gold: #c49a44; --display: 'Trebuchet MS', 'Segoe UI', sans-serif; --mono: 'Courier New', monospace; font: 16px/1.4 var(--display); color: var(--ink); background: var(--paper); font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
-:root:has(.dark-mode) { --paper: #1d211f; --surface: #29302c; --ink: #f1eadb; --muted: #a8aea4; --line: #465049; --gold: #e0b85d; }
+:root:has(.dark-mode) { --paper: #101010; --surface: #1b1b1a; --ink: #f1eadb; --muted: #a49f94; --line: #393833; --gold: #e0b85d; }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; background: var(--paper); transition: background .25s, color .25s; }
 body:has(.overlay-mode) { background: transparent; }

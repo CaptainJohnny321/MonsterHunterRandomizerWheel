@@ -20,6 +20,8 @@ type WheelProps = {
   enabled: boolean
   result: WheelItem | null
   spinning: boolean
+  spinStart: number
+  spinAngle: number
   accent: 'ember' | 'teal'
   onToggle: () => void
   onWeightChange: (id: string, weight: number) => void
@@ -31,13 +33,14 @@ type WheelProps = {
 const assetRoot = './assets'
 const stateChannel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('monster-wheel-state')
 const archTemperedMonsterIds = new Set(['arkveld', 'uth-duna', 'rey-dau', 'nu-udra', 'jin-dahaad'])
+const noTemperedMonsterIds = new Set(['gogmazios'])
 
 function getWheelOptions(items: WeightedItem[], showMonsterVariants: boolean) {
   return items.flatMap<WheelOption>((item) => {
     if (item.weight <= 0) return []
     const options: WheelOption[] = []
     if (item.normal) options.push({ ...item, variant: 'normal', sourceId: item.id })
-    if (showMonsterVariants && item.tempered) options.push({ ...item, id: `${item.id}-tempered`, name: `${item.name} (Tempered)`, variant: 'tempered', sourceId: item.id })
+    if (showMonsterVariants && item.tempered && !noTemperedMonsterIds.has(item.id)) options.push({ ...item, id: `${item.id}-tempered`, name: `${item.name} (Tempered)`, variant: 'tempered', sourceId: item.id })
     if (showMonsterVariants && item.archTempered) options.push({ ...item, id: `${item.id}-arch-tempered`, name: `${item.name} (Arch Tempered)`, variant: 'archTempered', sourceId: item.id })
     return options
   })
@@ -56,6 +59,23 @@ function weightedPick(items: WheelOption[]) {
   return activeItems[activeItems.length - 1]
 }
 
+function getOptionAngle(items: WheelOption[], id: string) {
+  const totalWeight = items.reduce((total, item) => total + item.weight, 0)
+  let angleCursor = 0
+  for (const item of items) {
+    const segment = (item.weight / totalWeight) * 360
+    if (item.id === id) return angleCursor + segment / 2
+    angleCursor += segment
+  }
+  return 0
+}
+
+function getLandingRotation(currentRotation: number, optionAngle: number) {
+  const fullRotations = 1080 + Math.floor(Math.random() * 3) * 360
+  const correction = ((-optionAngle - currentRotation) % 360 + 360) % 360
+  return currentRotation + fullRotations + correction
+}
+
 function Wheel({
   title,
   eyebrow,
@@ -64,6 +84,8 @@ function Wheel({
   enabled,
   result,
   spinning,
+  spinStart,
+  spinAngle,
   accent,
   onToggle,
   onWeightChange,
@@ -94,6 +116,8 @@ function Wheel({
     angleCursor += segment
     return { item, angle }
   })
+  const iconSize = activeItems.length > 24 ? 20 : activeItems.length > 16 ? 30 : 40
+  const iconRadius = activeItems.length > 24 ? 174 : 161
 
   return (
     <section className={`wheel-panel ${accent} ${enabled ? '' : 'is-disabled'}`}>
@@ -108,16 +132,17 @@ function Wheel({
       </div>
       {showMonsterVariants && <div className="variant-toolbar">
         <span>Monster versions</span>
-        <button type="button" onClick={() => onToggleAllVariant('tempered')}>Tempered all</button>
-        <button type="button" onClick={() => onToggleAllVariant('archTempered')}>Arch Tempered all</button>
+        <button className={items.filter((item) => !noTemperedMonsterIds.has(item.id)).every((item) => item.tempered) ? 'is-selected' : ''} type="button" onClick={() => onToggleAllVariant('tempered')}>Tempered all</button>
+        <button className={items.filter((item) => archTemperedMonsterIds.has(item.id)).length > 0 && items.filter((item) => archTemperedMonsterIds.has(item.id)).every((item) => item.archTempered) ? 'is-selected' : ''} type="button" onClick={() => onToggleAllVariant('archTempered')}>Arch Tempered all</button>
       </div>}
+      {!showMonsterVariants && <div className="variant-toolbar variant-toolbar-spacer" aria-hidden="true" />}
 
       <div className="wheel-stage">
         <div className={`pointer ${accent}`} />
-        <div className="wheel">
-          <div className={`wheel-rotor ${spinning ? 'is-spinning' : ''}`} style={{ background: `conic-gradient(${gradient})` }}>
+        <div className={`wheel ${folder === 'monsters' ? 'monster-wheel' : ''}`}>
+          <div className={`wheel-rotor ${spinning ? 'is-spinning' : ''}`} style={{ '--spin-start': `${spinStart}deg`, '--spin-angle': `${spinAngle}deg`, transform: `rotate(${spinAngle}deg)`, background: `conic-gradient(${gradient})` } as CSSProperties}>
             {wheelIcons.map(({ item, angle }) => (
-              <div className="wheel-icon" key={item.id} style={{ '--angle': `${angle}deg` } as CSSProperties}>
+              <div className={`wheel-icon ${item.variant === 'tempered' ? 'is-tempered' : ''} ${item.variant === 'archTempered' ? 'is-arch-tempered' : ''}`} key={item.id} style={{ '--angle': `${angle}deg`, '--icon-size': `${iconSize}px`, '--icon-radius': `${iconRadius}px` } as CSSProperties}>
                 <img src={`${assetRoot}/${folder}/${item.file}`} alt={item.name} />
               </div>
             ))}
@@ -139,12 +164,13 @@ function Wheel({
         {items.map((item) => {
           const chance = totalWeight ? Math.round((item.weight / totalWeight) * 100) : 0
           const hasArchTempered = archTemperedMonsterIds.has(item.id)
+          const isSelected = showMonsterVariants ? item.normal || item.tempered || item.archTempered : item.normal
           return (
-            <label className={`item-row ${showMonsterVariants ? 'has-variants' : ''} ${item.weight === 0 ? 'is-muted' : ''}`} key={item.id}>
+            <label className={`item-row ${showMonsterVariants ? 'has-variants' : ''} ${isSelected ? 'is-selected' : ''} ${item.weight === 0 ? 'is-muted' : ''}`} key={item.id}>
               <img src={`${assetRoot}/${folder}/${item.file}`} alt="" />
               <span className="item-name">{item.name}</span>
               <input aria-label={`Include ${item.name}`} title="Normal" type="checkbox" checked={item.normal} onChange={(event) => onVariantToggle(item.id, 'normal', event.target.checked)} />
-              {showMonsterVariants && <input aria-label={`Include ${item.name} Tempered`} title="Tempered" type="checkbox" checked={item.tempered} onChange={(event) => onVariantToggle(item.id, 'tempered', event.target.checked)} />}
+              {showMonsterVariants && <input aria-label={`Include ${item.name} Tempered`} title="Tempered" type="checkbox" disabled={noTemperedMonsterIds.has(item.id)} checked={item.tempered && !noTemperedMonsterIds.has(item.id)} onChange={(event) => onVariantToggle(item.id, 'tempered', event.target.checked)} />}
               {showMonsterVariants && <input aria-label={`Include ${item.name} Arch Tempered`} title="Arch Tempered" type="checkbox" disabled={!hasArchTempered} checked={item.archTempered} onChange={(event) => onVariantToggle(item.id, 'archTempered', event.target.checked)} />}
               <input aria-label={`${item.name} chance percent`} className="weight-input" type="number" min="0" value={item.weight} onChange={(event) => onWeightChange(item.id, Math.max(0, Number(event.target.value) || 0))} />
               <output>{chance}%</output>
@@ -158,6 +184,7 @@ function Wheel({
 
 function App() {
   const [streamerOverlay, setStreamerOverlay] = useState(() => new URLSearchParams(window.location.search).has('overlay'))
+  const [overlayWindowOpen, setOverlayWindowOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('monster-wheel-dark-mode') === 'true')
   const [monsters, setMonsters] = useState<WeightedItem[]>([])
   const [weapons, setWeapons] = useState<WeightedItem[]>([])
@@ -166,6 +193,8 @@ function App() {
   const [monsterResult, setMonsterResult] = useState<WheelItem | null>(null)
   const [weaponResult, setWeaponResult] = useState<WheelItem | null>(null)
   const [spinningWheel, setSpinningWheel] = useState<'monster' | 'weapon' | 'both' | null>(null)
+  const [spinAngles, setSpinAngles] = useState({ monster: 1440, weapon: 1440 })
+  const [spinStarts, setSpinStarts] = useState({ monster: 1440, weapon: 1440 })
   const [history, setHistory] = useState<string[]>([])
 
   useEffect(() => {
@@ -197,18 +226,27 @@ function App() {
 
   const toggleAllMonsterVariants = (variant: MonsterVariant) => {
     setMonsters((current) => {
-      const eligibleItems = variant === 'archTempered' ? current.filter((item) => archTemperedMonsterIds.has(item.id)) : current
+      const eligibleItems = variant === 'archTempered' ? current.filter((item) => archTemperedMonsterIds.has(item.id)) : current.filter((item) => !noTemperedMonsterIds.has(item.id))
       const enable = eligibleItems.some((item) => !item[variant])
-      return current.map((item) => variant === 'archTempered' && !archTemperedMonsterIds.has(item.id) ? item : { ...item, [variant]: enable })
+      return current.map((item) => (variant === 'archTempered' && !archTemperedMonsterIds.has(item.id)) || (variant === 'tempered' && noTemperedMonsterIds.has(item.id)) ? item : { ...item, [variant]: enable })
     })
   }
 
   const spin = (wheel: 'monster' | 'weapon' | 'both') => {
     if (spinningWheel || !loaded || activeWheelCount === 0) return
+    const monsterOptions = getWheelOptions(monsters, true)
+    const weaponOptions = getWheelOptions(weapons, false)
+    const nextMonster = (wheel === 'weapon' || !monstersEnabled) ? monsterResult : weightedPick(monsterOptions)
+    const nextWeapon = (wheel === 'monster' || !weaponsEnabled) ? weaponResult : weightedPick(weaponOptions)
+    const monsterAngle = nextMonster ? getOptionAngle(monsterOptions, nextMonster.id) : 0
+    const weaponAngle = nextWeapon ? getOptionAngle(weaponOptions, nextWeapon.id) : 0
+    setSpinStarts(spinAngles)
+    setSpinAngles({
+      monster: wheel === 'weapon' ? spinAngles.monster : getLandingRotation(spinAngles.monster, monsterAngle),
+      weapon: wheel === 'monster' ? spinAngles.weapon : getLandingRotation(spinAngles.weapon, weaponAngle),
+    })
     setSpinningWheel(wheel)
     window.setTimeout(() => {
-      const nextMonster = (wheel === 'weapon' || !monstersEnabled) ? monsterResult : weightedPick(getWheelOptions(monsters, true))
-      const nextWeapon = (wheel === 'monster' || !weaponsEnabled) ? weaponResult : weightedPick(getWheelOptions(weapons, false))
       if (wheel !== 'weapon') setMonsterResult(nextMonster)
       if (wheel !== 'monster') setWeaponResult(nextWeapon)
       const label = [nextMonster?.name, nextWeapon?.name].filter(Boolean).join(' + ')
@@ -220,7 +258,7 @@ function App() {
   useEffect(() => {
     const handleStateMessage = (event: MessageEvent) => {
       if (event.data?.type === 'request-state' && !streamerOverlay) {
-        stateChannel?.postMessage({ type: 'state', state: { monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel } })
+        stateChannel?.postMessage({ type: 'state', state: { monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel, spinAngles, spinStarts } })
       }
       if (event.data?.type === 'spin-request' && !streamerOverlay) spin('both')
       if (event.data?.type === 'state' && streamerOverlay) {
@@ -231,16 +269,18 @@ function App() {
         setMonsterResult(event.data.state.monsterResult)
         setWeaponResult(event.data.state.weaponResult)
         setSpinningWheel(event.data.state.spinningWheel)
+        setSpinAngles(event.data.state.spinAngles)
+        setSpinStarts(event.data.state.spinStarts)
       }
     }
     stateChannel?.addEventListener('message', handleStateMessage)
     if (streamerOverlay) stateChannel?.postMessage({ type: 'request-state' })
     return () => stateChannel?.removeEventListener('message', handleStateMessage)
-  }, [streamerOverlay, monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel])
+  }, [streamerOverlay, monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel, spinAngles, spinStarts])
 
   useEffect(() => {
-    if (!streamerOverlay) stateChannel?.postMessage({ type: 'state', state: { monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel } })
-  }, [streamerOverlay, monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel])
+    if (!streamerOverlay) stateChannel?.postMessage({ type: 'state', state: { monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel, spinAngles, spinStarts } })
+  }, [streamerOverlay, monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel, spinAngles, spinStarts])
 
   useEffect(() => {
     localStorage.setItem('monster-wheel-dark-mode', String(darkMode))
@@ -263,10 +303,10 @@ function App() {
       <header className="topbar">
         <div className="brand"><span className="brand-mark">MW</span><span>Monster Wheel</span></div>
         <div className="topbar-actions">
-          <button className={`theme-toggle ${darkMode ? 'is-on' : ''}`} type="button" onClick={() => setDarkMode((value) => !value)} aria-pressed={darkMode}>
+          <button className={`theme-toggle ${darkMode ? 'is-on is-selected' : ''}`} type="button" onClick={() => setDarkMode((value) => !value)} aria-pressed={darkMode}>
             <i /> {darkMode ? 'Light mode' : 'Dark mode'}
           </button>
-          <button className="overlay-toggle" type="button" onClick={() => window.open(`${window.location.origin}/?overlay=1`, 'monster-wheel-streamer-overlay', 'popup,width=900,height=520')}>
+          <button className={`overlay-toggle ${overlayWindowOpen ? 'is-selected' : ''}`} type="button" onClick={() => { const overlayWindow = window.open(`${window.location.origin}/?overlay=1`, 'monster-wheel-streamer-overlay', 'popup,width=900,height=520'); overlayWindow?.focus(); setOverlayWindowOpen(true) }}>
             <i /> Streamer overlay
           </button>
           <span className="status"><i /> Wilds hunt generator</span>
@@ -283,8 +323,8 @@ function App() {
       </section>
 
       <section className="wheel-grid">
-        <Wheel title="Monster" eyebrow="Target wheel" folder="monsters" items={monsters} enabled={monstersEnabled} result={monsterResult} spinning={spinningWheel === 'monster' || spinningWheel === 'both'} accent="ember" onToggle={() => setMonstersEnabled((value) => !value)} onWeightChange={(id, weight) => updateWeight('monster', id, weight)} onVariantToggle={(id, variant, enabled) => updateVariant('monster', id, variant, enabled)} onToggleAllVariant={toggleAllMonsterVariants} onSpin={() => spin('monster')} />
-        <Wheel title="Weapon" eyebrow="Loadout wheel" folder="weapons" items={weapons} enabled={weaponsEnabled} result={weaponResult} spinning={spinningWheel === 'weapon' || spinningWheel === 'both'} accent="teal" onToggle={() => setWeaponsEnabled((value) => !value)} onWeightChange={(id, weight) => updateWeight('weapon', id, weight)} onVariantToggle={(id, variant, enabled) => updateVariant('weapon', id, variant, enabled)} onToggleAllVariant={() => undefined} onSpin={() => spin('weapon')} />
+        <Wheel title="Monster" eyebrow="Target wheel" folder="monsters" items={monsters} enabled={monstersEnabled} result={monsterResult} spinning={spinningWheel === 'monster' || spinningWheel === 'both'} spinStart={spinStarts.monster} spinAngle={spinAngles.monster} accent="ember" onToggle={() => setMonstersEnabled((value) => !value)} onWeightChange={(id, weight) => updateWeight('monster', id, weight)} onVariantToggle={(id, variant, enabled) => updateVariant('monster', id, variant, enabled)} onToggleAllVariant={toggleAllMonsterVariants} onSpin={() => spin('monster')} />
+        <Wheel title="Weapon" eyebrow="Loadout wheel" folder="weapons" items={weapons} enabled={weaponsEnabled} result={weaponResult} spinning={spinningWheel === 'weapon' || spinningWheel === 'both'} spinStart={spinStarts.weapon} spinAngle={spinAngles.weapon} accent="teal" onToggle={() => setWeaponsEnabled((value) => !value)} onWeightChange={(id, weight) => updateWeight('weapon', id, weight)} onVariantToggle={(id, variant, enabled) => updateVariant('weapon', id, variant, enabled)} onToggleAllVariant={() => undefined} onSpin={() => spin('weapon')} />
       </section>
 
       <section className="command-bar">

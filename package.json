@@ -4,7 +4,7 @@
   "author": "Monster Hunter Randomizer",
   "main": "electron/main.mjs",
   "private": true,
-  "version": "0.1.2",
+  "version": "0.1.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
