@@ -25,7 +25,6 @@
     "@vitejs/plugin-react": "^6.1.0",
     "electron": "^44.0.0",
     "electron-builder": "^26.15.3",
-    "electron-serve": "^3.0.1",
     "oxlint": "^1.79.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.2"

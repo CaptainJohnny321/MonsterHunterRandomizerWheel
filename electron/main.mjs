@@ -1,8 +1,5 @@
 import path from 'node:path'
 import { app, BrowserWindow } from 'electron'
-import serve from 'electron-serve'
-
-const loadApp = serve({ directory: 'dist' })
 
 function createWindow() {
   const window = new BrowserWindow({
@@ -18,7 +15,7 @@ function createWindow() {
     },
   })
 
-  loadApp(window)
+  window.loadFile(path.join(app.getAppPath(), 'dist', 'index.html'))
 }
 
 app.whenReady().then(() => {

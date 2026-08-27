@@ -2,6 +2,16 @@
 
 Monster Wheel is a desktop hunt randomizer for Monster Hunter Wilds. Choose the monsters and weapons in each wheel, set their percentage weights, and roll a hunt assignment.
 
+## Download for Windows
+
+Download the latest version directly from the repository:
+
+- [Download and install Monster Wheel](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Wheel.Setup.0.0.0.exe)
+- [Download the portable version](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Wheel.0.0.0.exe)
+- [View all releases and files](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases)
+
+The installer is recommended for most users. The portable version runs without installation.
+
 ## Run during development
 
 ```text
