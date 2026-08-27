@@ -18,10 +18,6 @@ jobs:
         include:
           - os: windows-latest
             artifact: windows-installer
-          - os: macos-latest
-            artifact: macos-installer
-          - os: ubuntu-latest
-            artifact: linux-appimage
 
     steps:
       - name: Check out source

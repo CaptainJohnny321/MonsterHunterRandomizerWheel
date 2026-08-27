@@ -38,7 +38,7 @@ Commit the generated installer to a GitHub Release rather than the source reposi
 
 On Windows, download the portable `.exe` from the GitHub Release to run Monster Wheel directly without installing it. The `Setup` `.exe` installs the app normally and adds standard Windows shortcuts.
 
-To publish releases automatically, push a version tag such as `v1.0.0`. GitHub Actions builds all three platform installers and attaches them to a new GitHub Release. The first workflow run may require enabling Actions and allowing the workflow to write releases in the repository settings.
+To publish a Windows release automatically, push a version tag such as `v1.0.0`. GitHub Actions builds both Windows executables and attaches them to a new GitHub Release. The first workflow run may require enabling Actions and allowing the workflow to write releases in the repository settings.
 
 ## Asset attribution
 
