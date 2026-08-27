@@ -158,6 +158,7 @@ function Wheel({
 
 function App() {
   const [streamerOverlay, setStreamerOverlay] = useState(() => new URLSearchParams(window.location.search).has('overlay'))
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('monster-wheel-dark-mode') === 'true')
   const [monsters, setMonsters] = useState<WeightedItem[]>([])
   const [weapons, setWeapons] = useState<WeightedItem[]>([])
   const [monstersEnabled, setMonstersEnabled] = useState(true)
@@ -242,6 +243,10 @@ function App() {
   }, [streamerOverlay, monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult, spinningWheel])
 
   useEffect(() => {
+    localStorage.setItem('monster-wheel-dark-mode', String(darkMode))
+  }, [darkMode])
+
+  useEffect(() => {
     const handleOverlayKeys = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setStreamerOverlay(false)
       if (streamerOverlay && event.code === 'Space' && event.target instanceof HTMLElement && !['INPUT', 'BUTTON'].includes(event.target.tagName)) {
@@ -254,10 +259,13 @@ function App() {
   }, [streamerOverlay, spinningWheel, loaded, activeWheelCount, monsters, weapons, monstersEnabled, weaponsEnabled, monsterResult, weaponResult])
 
   return (
-    <main className={`app-shell ${streamerOverlay ? 'overlay-mode' : ''}`}>
+    <main className={`app-shell ${streamerOverlay ? 'overlay-mode' : ''} ${darkMode ? 'dark-mode' : ''}`}>
       <header className="topbar">
         <div className="brand"><span className="brand-mark">MW</span><span>Monster Wheel</span></div>
         <div className="topbar-actions">
+          <button className={`theme-toggle ${darkMode ? 'is-on' : ''}`} type="button" onClick={() => setDarkMode((value) => !value)} aria-pressed={darkMode}>
+            <i /> {darkMode ? 'Light mode' : 'Dark mode'}
+          </button>
           <button className="overlay-toggle" type="button" onClick={() => window.open(`${window.location.origin}/?overlay=1`, 'monster-wheel-streamer-overlay', 'popup,width=900,height=520')}>
             <i /> Streamer overlay
           </button>
