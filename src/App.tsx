@@ -89,12 +89,14 @@ function Wheel({
 
       <div className="wheel-stage">
         <div className={`pointer ${accent}`} />
-        <div className={`wheel ${spinning ? 'is-spinning' : ''}`} style={{ background: `conic-gradient(${gradient})` }}>
-          {wheelIcons.map(({ item, angle }) => (
-            <div className="wheel-icon" key={item.id} style={{ '--angle': `${angle}deg` } as CSSProperties}>
-              <img src={`${assetRoot}/${folder}/${item.file}`} alt={item.name} />
-            </div>
-          ))}
+        <div className="wheel">
+          <div className={`wheel-rotor ${spinning ? 'is-spinning' : ''}`} style={{ background: `conic-gradient(${gradient})` }}>
+            {wheelIcons.map(({ item, angle }) => (
+              <div className="wheel-icon" key={item.id} style={{ '--angle': `${angle}deg` } as CSSProperties}>
+                <img src={`${assetRoot}/${folder}/${item.file}`} alt={item.name} />
+              </div>
+            ))}
+          </div>
           <div className="wheel-inner">
             {result ? <img src={`${assetRoot}/${folder}/${result.file}`} alt="" /> : <span className="wheel-mark">?</span>}
             <strong>{result?.name ?? 'Ready'}</strong>
@@ -116,7 +118,7 @@ function Wheel({
               <img src={`${assetRoot}/${folder}/${item.file}`} alt="" />
               <span className="item-name">{item.name}</span>
               <input aria-label={`Include ${item.name}`} type="checkbox" checked={item.weight > 0} onChange={(event) => onWeightChange(item.id, event.target.checked ? 50 : 0)} />
-              <input aria-label={`${item.name} chance percent`} className="weight-input" type="number" min="0" max="100" value={item.weight} onChange={(event) => onWeightChange(item.id, Math.min(100, Math.max(0, Number(event.target.value) || 0)))} />
+              <input aria-label={`${item.name} chance percent`} className="weight-input" type="number" min="0" value={item.weight} onChange={(event) => onWeightChange(item.id, Math.max(0, Number(event.target.value) || 0))} />
               <output>{chance}%</output>
             </label>
           )
@@ -127,6 +129,7 @@ function Wheel({
 }
 
 function App() {
+  const [streamerOverlay, setStreamerOverlay] = useState(() => new URLSearchParams(window.location.search).has('overlay'))
   const [monsters, setMonsters] = useState<WeightedItem[]>([])
   const [weapons, setWeapons] = useState<WeightedItem[]>([])
   const [monstersEnabled, setMonstersEnabled] = useState(true)
@@ -135,6 +138,14 @@ function App() {
   const [weaponResult, setWeaponResult] = useState<WheelItem | null>(null)
   const [spinningWheel, setSpinningWheel] = useState<'monster' | 'weapon' | 'both' | null>(null)
   const [history, setHistory] = useState<string[]>([])
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setStreamerOverlay(false)
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [])
 
   useEffect(() => {
     Promise.all([
@@ -173,10 +184,15 @@ function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell ${streamerOverlay ? 'overlay-mode' : ''}`}>
       <header className="topbar">
         <div className="brand"><span className="brand-mark">MW</span><span>Monster Wheel</span></div>
-        <span className="status"><i /> Wilds hunt generator</span>
+        <div className="topbar-actions">
+          <button className={`overlay-toggle ${streamerOverlay ? 'is-on' : ''}`} type="button" onClick={() => setStreamerOverlay((value) => !value)} aria-pressed={streamerOverlay}>
+            <i /> Streamer overlay
+          </button>
+          <span className="status"><i /> Wilds hunt generator</span>
+        </div>
       </header>
 
       <section className="intro">

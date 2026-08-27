@@ -1,5 +1,6 @@
-:root { --paper: #f4f0e7; --surface: #ebe6da; --ink: #24251f; --muted: #79776c; --line: #d5cfc1; --ember: #c85d35; --teal: #2d7772; --display: 'Trebuchet MS', 'Segoe UI', sans-serif; --mono: 'Courier New', monospace; font: 16px/1.4 var(--display); color: var(--ink); background: var(--paper); font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+:root { --paper: #f4f0e7; --surface: #ebe6da; --ink: #24251f; --muted: #79776c; --line: #d5cfc1; --ember: #c85d35; --teal: #2d7772; --gold: #c49a44; --display: 'Trebuchet MS', 'Segoe UI', sans-serif; --mono: 'Courier New', monospace; font: 16px/1.4 var(--display); color: var(--ink); background: var(--paper); font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; background: var(--paper); }
+body:has(.overlay-mode) { background: transparent; }
 button, input { font: inherit; }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }

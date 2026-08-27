@@ -12,6 +12,12 @@ Download the latest version directly from the repository:
 
 The installer is recommended for most users. The portable version runs without installation.
 
+## Streamlabs overlay
+
+Launch Monster Hunter Randomizer, then add `http://127.0.0.1:3210/?overlay=1` as a Streamlabs Browser Source. The app hosts this local overlay automatically. The overlay view uses a transparent background and shows only the monster and weapon wheels without the controls, weights, or hunt log.
+
+The Browser Source is a separate app instance. Use it as a visual asset display, or use window capture and crop the native app when the overlay needs to mirror live roll results from the desktop window. During development, `npm run dev` remains available at `http://localhost:5173/?overlay=1`.
+
 ## Run during development
 
 ```text
