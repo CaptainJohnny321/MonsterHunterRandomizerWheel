@@ -33,9 +33,9 @@ h1 { margin: 9px 0 8px; color: var(--ink); font: 700 clamp(42px, 6vw, 78px)/.95 
 .toggle span { width: 7px; height: 7px; border-radius: 50%; background: #aaa49a; }
 .toggle.is-on span { background: var(--teal); box-shadow: 0 0 0 3px #d5e9e6; }
 .wheel-stage { position: relative; display: grid; place-items: center; height: 300px; margin: 4px 0 4px; }
-.wheel-stage { position: relative; display: grid; place-items: center; height: 445px; margin: 4px 0 4px; }
+.wheel-stage { position: relative; display: grid; place-items: center; width: 100%; height: 500px; margin: 4px 0 4px; overflow: visible; }
 .wheel { display: grid; place-items: center; width: 242px; height: 242px; border: 9px solid var(--gold); border-radius: 50%; box-shadow: 0 8px 0 #c9c1af, 0 14px 25px #2b2b241c; transition: transform .4s; }
-.wheel { position: relative; display: grid; place-items: center; width: 460px; height: 460px; border: 10px solid var(--gold); border-radius: 50%; box-shadow: 0 8px 0 #c9c1af, 0 14px 25px #2b2b241c; }
+.wheel { position: relative; display: grid; place-items: center; width: min(460px, 100%); aspect-ratio: 1; margin-inline: auto; border: 10px solid var(--gold); border-radius: 50%; box-shadow: 0 8px 0 #c9c1af, 0 14px 25px #2b2b241c; }
 .wheel-rotor { position: absolute; inset: 0; border-radius: 50%; animation: none; }
 .wheel-rotor.is-spinning { animation: spin 2200ms cubic-bezier(.12,.78,.2,1); }
 @keyframes spin { to { transform: rotate(1440deg); } }
