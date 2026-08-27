@@ -12,11 +12,50 @@ Download the latest version directly from the repository:
 
 The installer is recommended for most users. The portable version runs without installation.
 
-## Streamlabs overlay
+## Streamer setup guide
 
-Launch Monster Hunter Randomizer, then add `http://127.0.0.1:3210/?overlay=1` as a Streamlabs Browser Source. The app hosts this local overlay automatically. The overlay view uses a transparent background and shows only the monster and weapon wheels without the controls, weights, or hunt log.
+### What streamers need
 
-The Browser Source is a separate app instance. Use it as a visual asset display, or use window capture and crop the native app when the overlay needs to mirror live roll results from the desktop window. During development, `npm run dev` remains available at `http://localhost:5173/?overlay=1`.
+1. Download and install the latest **Monster Hunter Randomizer** Windows release.
+2. Open Monster Hunter Randomizer before opening Streamlabs.
+3. Keep the app running while streaming. It hosts the overlay locally.
+
+### The overlay URL
+
+The URL for Streamlabs is:
+
+```text
+http://127.0.0.1:3210/?overlay=1
+```
+
+This URL is the same for every streamer, but `127.0.0.1` always means **the current computer**. Each streamer must have Monster Hunter Randomizer running on their own computer for the URL to work. The URL does not come from GitHub and does not need to be changed for different users.
+
+### Add the overlay to Streamlabs
+
+1. Open Streamlabs Desktop.
+2. In the **Sources** panel, click **Add Source**.
+3. Select **Browser Source**.
+4. Paste the overlay URL above into the **URL** field.
+5. Set the Browser Source size to match the area where it will appear on stream, such as `800` width by `450` height.
+6. Confirm that the Browser Source background is transparent, then click **Done**.
+7. Resize and position the source on the stream canvas.
+
+The overlay shows only the monster and weapon wheels. The page background, headings, buttons, weight lists, and hunt log are hidden automatically.
+
+### Use the overlay toggle
+
+The main application includes a clearly labeled **Streamer overlay** toggle. Turn it on when using a direct window capture and you want the native app itself to show only the wheels. Press `Escape` to leave overlay mode.
+
+For a Browser Source, use the URL with `?overlay=1`; the toggle in the native app does not control a separate Browser Source window.
+
+### Troubleshooting
+
+- **Browser Source says "Failed to load":** open Monster Hunter Randomizer first, then refresh the Browser Source in Streamlabs.
+- **The page is blank:** confirm the URL is exactly `http://127.0.0.1:3210/?overlay=1`, including `?overlay=1`.
+- **The overlay disappears:** make sure the desktop app is still running. Closing it stops the local overlay server.
+- **The wheels do not match the native app:** Browser Source runs as a separate app instance. Use Streamlabs **Window Capture** and crop the native app, or use the native app's **Streamer overlay** mode for a live matching display.
+
+During development, `npm run dev` remains available at `http://localhost:5173/?overlay=1`.
 
 ## Run during development
 
