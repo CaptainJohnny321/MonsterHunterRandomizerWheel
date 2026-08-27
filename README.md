@@ -1,13 +1,13 @@
-# Monster Wheel
+# Monster Hunter Randomizer
 
-Monster Wheel is a desktop hunt randomizer for Monster Hunter Wilds. Choose the monsters and weapons in each wheel, set their percentage weights, and roll a hunt assignment.
+Monster Hunter Randomizer is a desktop hunt randomizer for Monster Hunter Wilds. Choose the monsters and weapons in each wheel, set their percentage weights, and roll a hunt assignment.
 
 ## Download for Windows
 
 Download the latest version directly from the repository:
 
-- [Download and install Monster Wheel](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Wheel.Setup.0.0.0.exe)
-- [Download the portable version](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Wheel.0.0.0.exe)
+- [Download and install Monster Hunter Randomizer](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Hunter.Randomizer.Setup.0.0.0.exe)
+- [Download the portable version](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases/latest/download/Monster.Hunter.Randomizer.0.0.0.exe)
 - [View all releases and files](https://github.com/CaptainJohnny321/MonsterHunterRandomizerWheel/releases)
 
 The installer is recommended for most users. The portable version runs without installation.
@@ -44,9 +44,9 @@ Installers are written to `release/`:
 - macOS: disk image (`.dmg`)
 - Linux: AppImage (`.AppImage`)
 
-Commit the generated installer to a GitHub Release rather than the source repository. People can download the installer for their operating system and use Monster Wheel like a normal desktop app.
+Commit the generated installer to a GitHub Release rather than the source repository. People can download the installer for their operating system and use Monster Hunter Randomizer like a normal desktop app.
 
-On Windows, download the portable `.exe` from the GitHub Release to run Monster Wheel directly without installing it. The `Setup` `.exe` installs the app normally and adds standard Windows shortcuts.
+On Windows, download the portable `.exe` from the GitHub Release to run Monster Hunter Randomizer directly without installing it. The `Setup` `.exe` installs the app normally and adds standard Windows shortcuts.
 
 To publish a Windows release automatically, push a version tag such as `v1.0.0`. GitHub Actions builds both Windows executables and attaches them to a new GitHub Release. The first workflow run may require enabling Actions and allowing the workflow to write releases in the repository settings.
 

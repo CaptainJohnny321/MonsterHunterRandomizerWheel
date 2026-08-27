@@ -8,7 +8,7 @@ function createWindow() {
     minWidth: 960,
     minHeight: 720,
     backgroundColor: '#f4f0e7',
-    title: 'Monster Wheel',
+    title: 'Monster Hunter Randomizer',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,

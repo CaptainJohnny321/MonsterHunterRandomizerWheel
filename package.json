@@ -1,7 +1,7 @@
 {
   "name": "monster-wheel",
   "description": "A Monster Hunter Wilds hunt randomizer",
-  "author": "Monster Wheel",
+  "author": "Monster Hunter Randomizer",
   "main": "electron/main.mjs",
   "private": true,
   "version": "0.0.0",
@@ -31,7 +31,8 @@
   },
   "build": {
     "appId": "com.monsterwheel.app",
-    "productName": "Monster Wheel",
+    "productName": "Monster Hunter Randomizer",
+    "icon": "assets/monsters/png/guardian-rathalos.png",
     "files": [
       "dist/**/*",
       "electron/**/*"
