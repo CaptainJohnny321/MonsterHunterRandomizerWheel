@@ -24,7 +24,7 @@ type WheelProps = {
   onSpin: () => void
 }
 
-const assetRoot = '/assets'
+const assetRoot = './assets'
 
 function weightedPick(items: WeightedItem[]) {
   const activeItems = items.filter((item) => item.weight > 0)
