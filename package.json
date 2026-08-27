@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "import:wiki": "node scripts/import-wiki.mjs",
     "app": "npm run build && electron .",
     "dist": "npm run build && electron-builder --publish never",
     "lint": "oxlint",
@@ -23,6 +24,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
+    "cheerio": "^1.2.0",
     "electron": "^44.0.0",
     "electron-builder": "^26.15.3",
     "oxlint": "^1.79.0",

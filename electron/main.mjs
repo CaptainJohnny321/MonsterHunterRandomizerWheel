@@ -61,11 +61,12 @@ async function createWindow() {
 
   window.webContents.setWindowOpenHandler(({ url }) => {
     if (url.includes('?overlay=1')) {
+      const alwaysOnTop = new URL(url).searchParams.has('stay')
       return {
         action: 'allow',
         overrideBrowserWindowOptions: {
-          alwaysOnTop: true,
-          minimizable: false,
+          alwaysOnTop,
+          minimizable: !alwaysOnTop,
           autoHideMenuBar: true,
           title: 'Monster Hunter Randomizer - Streamer Overlay',
         },
